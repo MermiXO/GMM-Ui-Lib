@@ -7,7 +7,7 @@ This is a tutorial on how to use the GMM UI Library in your Roblox scripts. This
 First, you need to load the library into your script using `loadstring` and `game:HttpGet`. It's recommended to add a cache-busting parameter to the URL to ensure you always have the latest version.
 
 ```lua
-local GmmUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MermiXO/GMM-Ui-Lib/refs/heads/main/src.lua?t=" .. tick()))()
+local GmmUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/MermiXO/GMM-Ui-Lib/refs/heads/main/src.lua?t="))()
 ```
 
 ## 2. Initialization
