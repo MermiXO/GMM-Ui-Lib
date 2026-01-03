@@ -17,7 +17,6 @@ local function tween(obj, ti, props)
 	return t;
 end
 local DEFAULTS = {Title="GMM",Tab="HOME",Size=UDim2.fromOffset(320, 460),Position=UDim2.new(0.06, 0, 0.12, 0),Accent=Color3.fromRGB(150, 0, 0),Select=Color3.fromRGB(180, 0, 0),Bg=Color3.fromRGB(0, 0, 0),Text=Color3.fromRGB(255, 255, 255),HeaderHeight=78,SubHeight=24,FooterHeight=38,RowHeight=30};
-gui.Gui.DisplayOrder = 9999
 local function safeParentGui()
 	local lp = Players.LocalPlayer;
 	local pg = lp and lp:FindFirstChildOfClass("PlayerGui");
