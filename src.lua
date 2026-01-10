@@ -16,7 +16,7 @@ local function tween(obj, ti, props)
 	t:Play();
 	return t;
 end
-local DEFAULTS = {Title="GMM",Tab="HOME",Size=UDim2.fromOffset(320, 460),Position=UDim2.new(0.06, 0, 0.12, 0),Accent=Color3.fromRGB(150, 0, 0),Select=Color3.fromRGB(180, 0, 0),Bg=Color3.fromRGB(0, 0, 0),Text=Color3.fromRGB(255, 255, 255),HeaderHeight=78,SubHeight=24,FooterHeight=38,RowHeight=30};
+local DEFAULTS = {Title="GMM",Tab="HOME",Size=UDim2.fromOffset(320, 460),Position=UDim2.new(0.02999, 0, 0.02999, 0),Accent=Color3.fromRGB(138, 3, 3),Select=Color3.fromRGB(138, 3, 3),Bg=Color3.fromRGB(0, 0, 0),Text=Color3.fromRGB(240, 240, 240),TitleText=Color3.fromRGB(240, 240, 240),SelectedText=Color3.fromRGB(240, 240, 240),Scroller=Color3.fromRGB(138, 3, 3),ScrollBarThickness=4,ScrollSmoothness=4,HeaderHeight=78,SubHeight=24,FooterHeight=38,RowHeight=30};
 local function safeParentGui()
 	local lp = Players.LocalPlayer;
 	local pg = lp and lp:FindFirstChildOfClass("PlayerGui");
@@ -148,7 +148,7 @@ GmmUI.new = function(opts)
 	self.Main = main;
 	local header = mk("Frame", {Name="Header",Parent=main,Size=UDim2.new(1, 0, 0, opts.HeaderHeight),BackgroundColor3=opts.Accent,BorderSizePixel=0});
 	self.Header = header;
-	self.TitleLabel = mk("TextLabel", {Parent=header,BackgroundTransparency=1,Size=UDim2.new(1, 0, 1, 0),Font=Enum.Font.GothamBlack,Text=tostring(opts.Title):upper(),TextColor3=opts.Text,TextSize=44,TextStrokeTransparency=0.78,TextStrokeColor3=Color3.fromRGB(0, 0, 0)});
+	self.TitleLabel = mk("TextLabel", {Parent=header,BackgroundTransparency=1,Size=UDim2.new(1, 0, 1, 0),Font=Enum.Font.GothamBlack,Text=tostring(opts.Title):upper(),TextColor3=(opts.TitleText or opts.Text),TextSize=44,TextStrokeTransparency=0.78,TextStrokeColor3=Color3.fromRGB(0, 0, 0)});
 	local sub = mk("Frame", {Name="Sub",Parent=main,Position=UDim2.fromOffset(0, opts.HeaderHeight),Size=UDim2.new(1, 0, 0, opts.SubHeight),BackgroundColor3=opts.Bg,BackgroundTransparency=0,BorderSizePixel=0});
 	self.Sub = sub;
 	self.TabLabel = mk("TextLabel", {Parent=sub,BackgroundTransparency=1,Position=UDim2.fromOffset(10, 0),Size=UDim2.new(0.6, 0, 1, 0),Font=Enum.Font.GothamMedium,Text=tostring(opts.Tab):upper(),TextColor3=opts.Text,TextSize=14,TextXAlignment=Enum.TextXAlignment.Left});
@@ -156,7 +156,7 @@ GmmUI.new = function(opts)
 	local listTop = opts.HeaderHeight + opts.SubHeight;
 	local listBottom = opts.FooterHeight;
 	local listHeightOffset = listTop + listBottom;
-	local scroll = mk("ScrollingFrame", {Name="Scroll",Parent=main,Position=UDim2.fromOffset(0, listTop),Size=UDim2.new(1, 0, 1, -listHeightOffset),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=0,CanvasSize=UDim2.new(0, 0, 0, 0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollingDirection=Enum.ScrollingDirection.Y,ScrollingEnabled=false});
+	local scroll = mk("ScrollingFrame", {Name="Scroll",Parent=main,Position=UDim2.fromOffset(0, listTop),Size=UDim2.new(1, 0, 1, -listHeightOffset),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=(opts.ScrollBarThickness or 4),ScrollBarImageColor3=(opts.Scroller or opts.Accent),CanvasSize=UDim2.new(0, 0, 0, 0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollingDirection=Enum.ScrollingDirection.Y,ScrollingEnabled=false});
 	self.Scroll = scroll;
 	local layout = mk("UIListLayout", {Parent=scroll,SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0, 0)});
 	self.Layout = layout;
@@ -313,7 +313,7 @@ GmmUI._makeRow = function(self, item, index)
 	local row = mk("TextButton", {Parent=self.Scroll,Size=UDim2.new(1, 0, 0, opts.RowHeight),BackgroundTransparency=1,BorderSizePixel=0,AutoButtonColor=false,Text=""});
 	local selBg = mk("Frame", {Parent=row,Size=UDim2.new(1, 0, 1, 0),BackgroundColor3=opts.Select,BorderSizePixel=0,Visible=false});
 	mk("Frame", {Parent=row,AnchorPoint=Vector2.new(0, 1),Position=UDim2.new(0, 0, 1, 0),Size=UDim2.new(1, 0, 0, 1),BackgroundColor3=Color3.fromRGB(255, 255, 255),BackgroundTransparency=0.92,BorderSizePixel=0});
-	mk("TextLabel", {Parent=row,BackgroundTransparency=1,Position=UDim2.fromOffset(10, 0),Size=UDim2.new(1, -110, 1, 0),Font=Enum.Font.Gotham,Text=item.Label,TextColor3=opts.Text,TextSize=14,TextXAlignment=Enum.TextXAlignment.Left});
+	local left = mk("TextLabel", {Parent=row,BackgroundTransparency=1,Position=UDim2.fromOffset(10, 0),Size=UDim2.new(1, -110, 1, 0),Font=Enum.Font.Gotham,Text=item.Label,TextColor3=opts.Text,TextSize=14,TextXAlignment=Enum.TextXAlignment.Left});
 	local right = mk("TextLabel", {Parent=row,BackgroundTransparency=1,Position=UDim2.new(1, -86, 0, 0),Size=UDim2.fromOffset(62, opts.RowHeight),Font=Enum.Font.GothamBold,Text="",TextColor3=opts.Text,TextSize=13,TextXAlignment=Enum.TextXAlignment.Right});
 	local arrow = mk("TextLabel", {Parent=row,BackgroundTransparency=1,Position=UDim2.new(1, -24, 0, 0),Size=UDim2.fromOffset(24, opts.RowHeight),Font=Enum.Font.GothamBold,Text=">",TextColor3=opts.Text,TextSize=14});
 	if (item.HasArrow or (item.Type == "Submenu")) then
@@ -323,6 +323,10 @@ GmmUI._makeRow = function(self, item, index)
 	end
 	local function setSelected(on)
 		selBg.Visible = on;
+		local c = (on and (opts.SelectedText or opts.Text)) or opts.Text;
+		left.TextColor3 = c;
+		right.TextColor3 = c;
+		arrow.TextColor3 = c;
 		if on then
 			selBg.BackgroundTransparency = 0.2;
 			tween(selBg, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency=0});
@@ -386,6 +390,29 @@ GmmUI.Back = function(self)
 	local top = self.MenuStack[#self.MenuStack];
 	self:_renderMenu(top);
 end;
+GmmUI._scrollTo = function(self, targetY)
+	local scroll = self.Scroll;
+	if not scroll then
+		return;
+	end
+	targetY = tonumber(targetY) or 0;
+	local absCanvasY = scroll.AbsoluteCanvasSize.Y;
+	local maxY = (absCanvasY > 0) and math.max(0, absCanvasY - scroll.AbsoluteSize.Y) or math.huge;
+	targetY = math.clamp(targetY, 0, maxY);
+	if self._scrollTween then
+		pcall(function()
+			self._scrollTween:Cancel();
+		end);
+		self._scrollTween = nil;
+	end
+	local smoothness = tonumber(self.Opts and self.Opts.ScrollSmoothness) or 0;
+	if (smoothness <= 0) then
+		scroll.CanvasPosition = Vector2.new(0, targetY);
+		return;
+	end
+	local duration = math.clamp(0.04 * smoothness, 0.05, 0.4);
+	self._scrollTween = tween(scroll, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {CanvasPosition=Vector2.new(0, targetY)});
+end;
 GmmUI.SetSelected = function(self, idx)
 	if not self.Current then
 		return;
@@ -411,9 +438,9 @@ GmmUI.SetSelected = function(self, idx)
 		local topY = self.Scroll.AbsolutePosition.Y;
 		local botY = topY + self.Scroll.AbsoluteSize.Y;
 		if (y < topY) then
-			self.Scroll.CanvasPosition = Vector2.new(0, math.max(0, self.Scroll.CanvasPosition.Y - (topY - y)));
+			self:_scrollTo(self.Scroll.CanvasPosition.Y - (topY - y));
 		elseif ((y + h) > botY) then
-			self.Scroll.CanvasPosition = Vector2.new(0, self.Scroll.CanvasPosition.Y + ((y + h) - botY));
+			self:_scrollTo(self.Scroll.CanvasPosition.Y + ((y + h) - botY));
 		end
 	end
 end;
