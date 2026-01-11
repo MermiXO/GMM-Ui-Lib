@@ -16,7 +16,7 @@ local function tween(obj, ti, props)
 	t:Play();
 	return t;
 end
-local DEFAULTS = {Title="GMM",Tab="HOME",Size=UDim2.fromOffset(320, 460),Position=UDim2.new(0.02999, 0, 0.02999, 0),Accent=Color3.fromRGB(138, 3, 3),Select=Color3.fromRGB(138, 3, 3),Bg=Color3.fromRGB(0, 0, 0),Text=Color3.fromRGB(240, 240, 240),TitleText=Color3.fromRGB(240, 240, 240),SelectedText=Color3.fromRGB(240, 240, 240),Scroller=Color3.fromRGB(138, 3, 3),ScrollBarThickness=4,ScrollSmoothness=4,HeaderHeight=78,SubHeight=24,FooterHeight=38,RowHeight=30};
+local DEFAULTS = {Title="GMM",Tab="HOME",Size=UDim2.fromOffset(320, 460),Position=UDim2.new(0.02999, 0, 0.02999, 0),DisplayOrder=2147483647,Accent=Color3.fromRGB(138, 3, 3),Select=Color3.fromRGB(138, 3, 3),Bg=Color3.fromRGB(0, 0, 0),Text=Color3.fromRGB(240, 240, 240),TitleText=Color3.fromRGB(240, 240, 240),SelectedText=Color3.fromRGB(240, 240, 240),Scroller=Color3.fromRGB(138, 3, 3),ScrollBarThickness=4,ScrollSmoothness=4,HeaderHeight=78,SubHeight=24,FooterHeight=38,RowHeight=30};
 local function safeParentGui()
 	local lp = Players.LocalPlayer;
 	local pg = lp and lp:FindFirstChildOfClass("PlayerGui");
@@ -142,7 +142,7 @@ GmmUI.new = function(opts)
 	self._edit = nil;
 	self._holdDir = nil;
 	self._holdToken = 0;
-	local gui = mk("ScreenGui", {Name="GmmUI",ResetOnSpawn=false,IgnoreGuiInset=true,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,Parent=safeParentGui()});
+	local gui = mk("ScreenGui", {Name="GmmUI",ResetOnSpawn=false,IgnoreGuiInset=true,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,DisplayOrder=opts.DisplayOrder,Parent=safeParentGui()});
 	self.Gui = gui;
 	local main = mk("Frame", {Name="Main",Parent=gui,Size=opts.Size,Position=opts.Position,BackgroundColor3=opts.Bg,BackgroundTransparency=0.12,BorderSizePixel=0,ClipsDescendants=true});
 	self.Main = main;
