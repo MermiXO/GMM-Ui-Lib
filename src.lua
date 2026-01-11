@@ -170,8 +170,9 @@ GmmUI.new = function(opts)
 			ContextActionService:UnbindAction(name);
 		end);
 	end
+	local actionPriority = ((opts.InputPriority ~= nil) and tonumber(opts.InputPriority)) or (Enum.ContextActionPriority.High.Value + 5000);
 	local function bind(actionName, fn, ...)
-		ContextActionService:BindActionAtPriority(actionName, fn, false, 2000, ...);
+		ContextActionService:BindActionAtPriority(actionName, fn, false, actionPriority, ...);
 	end
 	bind("GmmUI_Toggle", function(_, state)
 		if (state ~= Enum.UserInputState.Begin) then
@@ -192,7 +193,7 @@ GmmUI.new = function(opts)
 		end
 		self:SetSelected(self.SelectedIndex - 1);
 		return Enum.ContextActionResult.Sink;
-	end, Enum.KeyCode.Up, Enum.KeyCode.KeypadEight);
+	end, Enum.KeyCode.Up, Enum.KeyCode.KeypadEight, Enum.KeyCode.I);
 	bind("GmmUI_Down", function(_, state)
 		if (state ~= Enum.UserInputState.Begin) then
 			return Enum.ContextActionResult.Pass;
@@ -205,7 +206,7 @@ GmmUI.new = function(opts)
 		end
 		self:SetSelected(self.SelectedIndex + 1);
 		return Enum.ContextActionResult.Sink;
-	end, Enum.KeyCode.Down, Enum.KeyCode.KeypadTwo);
+	end, Enum.KeyCode.Down, Enum.KeyCode.KeypadTwo, Enum.KeyCode.K);
 	bind("GmmUI_Left", function(_, state)
 		if not self.Opened then
 			return Enum.ContextActionResult.Pass;
@@ -219,7 +220,7 @@ GmmUI.new = function(opts)
 			return Enum.ContextActionResult.Sink;
 		end
 		return Enum.ContextActionResult.Pass;
-	end, Enum.KeyCode.Left, Enum.KeyCode.KeypadFour);
+	end, Enum.KeyCode.Left, Enum.KeyCode.KeypadFour, Enum.KeyCode.J);
 	bind("GmmUI_Right", function(_, state)
 		if not self.Opened then
 			return Enum.ContextActionResult.Pass;
@@ -233,7 +234,7 @@ GmmUI.new = function(opts)
 			return Enum.ContextActionResult.Sink;
 		end
 		return Enum.ContextActionResult.Pass;
-	end, Enum.KeyCode.Right, Enum.KeyCode.KeypadSix);
+	end, Enum.KeyCode.Right, Enum.KeyCode.KeypadSix, Enum.KeyCode.L);
 	bind("GmmUI_PageUp", function(_, state)
 		if (state ~= Enum.UserInputState.Begin) then
 			return Enum.ContextActionResult.Pass;
@@ -273,7 +274,7 @@ GmmUI.new = function(opts)
 			self:Back();
 		end
 		return Enum.ContextActionResult.Sink;
-	end, Enum.KeyCode.Backspace, Enum.KeyCode.KeypadZero);
+	end, Enum.KeyCode.Backspace, Enum.KeyCode.KeypadZero, Enum.KeyCode.U);
 	bind("GmmUI_Select", function(_, state)
 		if (state ~= Enum.UserInputState.Begin) then
 			return Enum.ContextActionResult.Pass;
@@ -283,7 +284,7 @@ GmmUI.new = function(opts)
 		end
 		self:Select();
 		return Enum.ContextActionResult.Sink;
-	end, Enum.KeyCode.Return, Enum.KeyCode.KeypadFive);
+	end, Enum.KeyCode.Return, Enum.KeyCode.KeypadFive, Enum.KeyCode.O);
 	return self;
 end;
 GmmUI.NewMenu = function(self, name)
@@ -299,6 +300,17 @@ GmmUI._updateCounter = function(self)
 	local total = (self.Current and #self.Current.Items) or 0;
 	local sel = ((total > 0) and math.clamp(self.SelectedIndex, 1, total)) or 0;
 	self.CounterLabel.Text = string.format("%d / %d", sel, total);
+end;
+GmmUI._saveMenuState = function(self)
+	local menu = self.Current;
+	if not menu then
+		return;
+	end
+	menu._savedIndex = tonumber(self.SelectedIndex) or 0;
+	if self.Scroll then
+		local y = (self._scrollTargetY ~= nil and self._scrollTargetY) or self.Scroll.CanvasPosition.Y;
+		menu._savedCanvasY = tonumber(y) or 0;
+	end
 end;
 GmmUI._clearRows = function(self)
 	for _, row in ipairs(self._rowObjects) do
@@ -366,7 +378,20 @@ GmmUI._renderMenu = function(self, menu)
 		table.insert(self._rowObjects, row);
 	end
 	if (#menu.Items > 0) then
-		self:SetSelected(1);
+		local savedY = tonumber(menu._savedCanvasY) or 0;
+		if self._scrollTween then
+			pcall(function()
+				self._scrollTween:Cancel();
+			end);
+			self._scrollTween = nil;
+		end
+		self.Scroll.CanvasPosition = Vector2.new(0, savedY);
+		self._scrollTargetY = savedY;
+		local savedIdx = tonumber(menu._savedIndex);
+		if not (savedIdx and (savedIdx >= 1) and (savedIdx <= #menu.Items)) then
+			savedIdx = 1;
+		end
+		self:SetSelected(savedIdx);
 	else
 		self.SelectedIndex = 0;
 		self.DescLabel.Text = "No options.";
@@ -374,6 +399,7 @@ GmmUI._renderMenu = function(self, menu)
 	end
 end;
 GmmUI.PushMenu = function(self, menu)
+	self:_saveMenuState();
 	table.insert(self.MenuStack, menu);
 	self:_renderMenu(menu);
 end;
@@ -386,6 +412,7 @@ GmmUI.Back = function(self)
 		self:Close();
 		return;
 	end
+	self:_saveMenuState();
 	table.remove(self.MenuStack, #self.MenuStack);
 	local top = self.MenuStack[#self.MenuStack];
 	self:_renderMenu(top);
@@ -396,6 +423,7 @@ GmmUI._scrollTo = function(self, targetY)
 		return;
 	end
 	targetY = tonumber(targetY) or 0;
+	self._scrollTargetY = targetY;
 	local absCanvasY = scroll.AbsoluteCanvasSize.Y;
 	local maxY = (absCanvasY > 0) and math.max(0, absCanvasY - scroll.AbsoluteSize.Y) or math.huge;
 	targetY = math.clamp(targetY, 0, maxY);
@@ -408,6 +436,7 @@ GmmUI._scrollTo = function(self, targetY)
 	local smoothness = tonumber(self.Opts and self.Opts.ScrollSmoothness) or 0;
 	if (smoothness <= 0) then
 		scroll.CanvasPosition = Vector2.new(0, targetY);
+		self._scrollTargetY = targetY;
 		return;
 	end
 	local duration = math.clamp(0.04 * smoothness, 0.05, 0.4);
@@ -443,6 +472,7 @@ GmmUI.SetSelected = function(self, idx)
 			self:_scrollTo(self.Scroll.CanvasPosition.Y + ((y + h) - botY));
 		end
 	end
+	self:_saveMenuState();
 end;
 GmmUI._getSelectedItem = function(self)
 	if not self.Current then
